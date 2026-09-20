@@ -1,0 +1,28 @@
+name: Enterprise Cloud Platform IaC Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-bicep:
+    name: Validate Bicep Templates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Bicep CLI
+        run: az bicep install
+
+      - name: Build & Lint Bicep
+        run: az bicep build --file bicep/main.bicep
+
+      - name: Security Scan with Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          framework: bicep
+          output_format: cli
+          soft_fail: true
